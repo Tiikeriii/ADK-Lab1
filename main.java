@@ -1,9 +1,13 @@
 import java.lang.Math;
+import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class main {
+    private static ArrayList<Array> stack = new ArrayList<Array>();
+    private static int top = 0;
     
-    private class Node {
+    private static class Node {
         private Node left;
         private Node right;
         private int maxinsubtree;
@@ -21,7 +25,7 @@ public class main {
         }
     }
 
-    private class Array {
+    private static class Array {
         private Node root;
         private int height;
 
@@ -31,19 +35,49 @@ public class main {
         }
     }
 
-    private Array newArray() {
-        new Array(null, 0);
-        
+    private static void push(Array a) {
+        stack.add(top, a);
+        top++;
     }
 
-    public static void main (String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        String[] str = input.split("\\s+");
+    private static Array pop() {
+        Array a = stack.get(top - 1);
+        top--;
+        return a;
+    }
 
-        switch (str[0]) {
-            case "set":
-                set(str[1], str[2], str[3]);
+    private static Array newArray() {
+        Array a = new Array(null, 0);
+        return a;
+    }
+
+    private static Array set(Array array, int index, int value) {
+        
+        return null;
+    }
+
+    public static void Main (String[] args) {
+        Array a = newArray();
+        push(a);
+
+        Scanner scanner = new Scanner(System.in);
+        boolean isRunning = true;
+
+        while (isRunning) {
+            String input = scanner.nextLine();
+            String[] str = input.split("\\s+");
+        
+            switch (str[0]) {
+                case "set":
+                    int index = Integer.parseInt(str[2]);
+                    int value = Integer.parseInt(str[3]);
+                    set(a, index, value);
+                case "unset":
+                    pop();
+                case "exit":
+                    isRunning = false;
+            }
         }
+        scanner.close();
     }
 }
