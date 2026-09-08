@@ -1,7 +1,6 @@
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 public class main {
     private static ArrayList<Array> stack = new ArrayList<Array>();
@@ -51,8 +50,22 @@ public class main {
         return a;
     }
 
+// height = floor of log2(maxindex)
+
     private static Array set(Array array, int index, int value) {
-        
+        if (array.height == 0) {
+            array.root = new Node(null, null);
+        }
+        while (height >= 0) {
+            if ((index & 2^height) == 0) {
+                new Node(array.root, null);
+            }
+            else {
+                node.right = new node balalaba
+                node.left = a.oldNode.left
+            }
+            height--;
+        }
         return null;
     }
 
