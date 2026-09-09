@@ -82,8 +82,6 @@ public class main {
         return a;
     }
 
-// height = floor of log2(maxindex)
-
     /**
      * Sets a new value or replaces a old value in the Array
      * The old Array is pushed onto the stack so changes can be reverted
@@ -121,9 +119,11 @@ public class main {
             } else {
                 newNode = currNewNode;
             }
+
             if (!diverged && level == oldHeight) {
                 currOldNode = (oldArray.root != null) ? oldArray.root : new Node(null, null);
             }
+
             if(level >= 2) {
                 if (!diverged && level <= oldHeight) {
                     newNode.right = currOldNode.right;
@@ -135,6 +135,7 @@ public class main {
                 newNode.right = (!diverged) ? currOldNode.right : new Node(null, null);
                 newNode.left = new Node(value);
             }
+
             currNewNode = newNode.left;
             if (!diverged && level <= oldHeight) {
                 currOldNode = currOldNode.left;
@@ -149,15 +150,21 @@ public class main {
             } else {
                 newNode = currNewNode;
             }
+
             if (!diverged && level == oldHeight) {
                 currOldNode = (oldArray.root != null) ? oldArray.root : new Node(null, null);
             }
+
             if(level >= 2) {
+                // Old tree and new index still shares a binary path
                 if (!diverged && level <= oldHeight) {
                     newNode.left = currOldNode.left;
-                } else if (!diverged) {
+                }
+                // new index has diverged from the old tree 
+                else if (!diverged) { 
                     newNode.left = wrapOldTree(oldArray, level - 1, oldHeight);
                     diverged = true;
+                // old tree is integrated in new tree
                 } else {
                     newNode.left = new Node(null, null);
                 }
@@ -166,6 +173,7 @@ public class main {
                 newNode.left = (!diverged) ? currOldNode.left : new Node(null, null);
                 newNode.right = new Node(value);
             }
+
             currNewNode = newNode.right;
             if (!diverged && level <= oldHeight) {
                 currOldNode = currOldNode.right;
