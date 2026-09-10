@@ -98,6 +98,7 @@ public class main {
     Node currOldNode = null;
     Node newNode = null;
     Array newArray = null;
+    ArrayList<Node> spine = new ArrayList<Node>();
 
     int oldHeight = (oldArray != null) ? oldArray.height : 1;
     int height = oldHeight;
@@ -119,6 +120,7 @@ public class main {
             } else {
                 newNode = currNewNode;
             }
+            spine.add(newNode);
 
             if (!diverged && level == oldHeight) {
                 currOldNode = (oldArray.root != null) ? oldArray.root : new Node(null, null);
@@ -126,7 +128,7 @@ public class main {
 
             if(level >= 2) {
                 if (!diverged && level <= oldHeight) {
-                    newNode.right = currOldNode.right;
+                    newNode.right = (currOldNode.right != null) ? currOldNode.right : new Node(null, null);
                 } else {
                     newNode.right = new Node(null, null);
                 }
@@ -138,7 +140,7 @@ public class main {
 
             currNewNode = newNode.left;
             if (!diverged && level <= oldHeight) {
-                currOldNode = currOldNode.left;
+                currOldNode = (currOldNode.left != null) ? currOldNode.left : new Node(null, null);
             }
 
         } else {
@@ -150,6 +152,7 @@ public class main {
             } else {
                 newNode = currNewNode;
             }
+            spine.add(newNode);
 
             if (!diverged && level == oldHeight) {
                 currOldNode = (oldArray.root != null) ? oldArray.root : new Node(null, null);
@@ -158,7 +161,7 @@ public class main {
             if(level >= 2) {
                 // Old tree and new index still shares a binary path
                 if (!diverged && level <= oldHeight) {
-                    newNode.left = currOldNode.left;
+                    newNode.left = (currOldNode.left != null) ? currOldNode.left : new Node(null, null);
                 }
                 // new index has diverged from the old tree 
                 else if (!diverged) { 
@@ -176,10 +179,16 @@ public class main {
 
             currNewNode = newNode.right;
             if (!diverged && level <= oldHeight) {
-                currOldNode = currOldNode.right;
+                currOldNode = (currOldNode.right != null) ? currOldNode.right : new Node(null, null);
             }
         }
         level--;
+    }
+    for (int i = spine.size() - 1; i >= 0; i--) {
+        Node currNode = spine.get(i);
+        int leftMax = (currNode.left != null) ? currNode.left.maxinsubtree : -1;
+        int rightMax = (currNode.right != null) ? currNode.right.maxinsubtree : -1;
+        currNode.maxinsubtree = Math.max(leftMax, rightMax);
     }
 
     return newArray;
@@ -203,6 +212,7 @@ public class main {
         Node n = new Node(null, null);
         n.left = wrapOldTree(oldArray, level - 1, oldHeight);
         n.right = new Node(null, null);
+        n.maxinsubtree = n.left.maxinsubtree;
         return n;
     }
 
@@ -240,14 +250,17 @@ public class main {
      */
     private static int get(Node node, int level, int index) {
             
+        if (node == null) {
+            return 0;
+        }
         // Given each level, do we go left (0) or right (1) (based on index)
-        int bit = (index & (1 << level - 1));
+        int path = (index & (1 << level - 1));
         
         if(level == 0) {
             return node.value;
         }
 
-        if(bit == 0) {
+        if(path == 0) {
             // Continue on left node
             if (node.left == null) {
                 return 0;
@@ -259,6 +272,88 @@ public class main {
                 return 0;
             }
             return get(node.right, level - 1, index);
+        }
+    }
+
+    private static int maxInInterval(Array array, int left, int right) {
+        if((left < 0 || right < 0) || (left > right)) {
+            System.out.println("Invalid interval");
+            return 0;
+        }
+        else if (array.height < (32-Integer.numberOfLeadingZeros(left))) {
+            System.out.println("Left side of interval is bigger than the max index in the array");
+            return 0;
+        }
+        else {
+            return maxSegment(array.root, left, right, array.height);
+        }
+    }
+
+    private static int maxRightSegment(Node root, int left, int height) {
+        if (root == null) {
+            return 0;
+        }
+        int path = (left & (1 << height - 1));
+        if (height == 1) {
+            int leftVal = (root.left != null) ? root.left.value : 0;
+            int rightVal = (root.right != null) ? root.right.value : 0;
+            return (path == 0) ? Math.max(leftVal, rightVal) : rightVal;
+        }
+        if (path == 0) {
+            int rightMax = (root.right != null) ? root.right.maxinsubtree : 0;
+            return Math.max(rightMax, maxRightSegment(root.left, left, height - 1));
+        }
+        else {
+            return maxRightSegment(root.right, left, height - 1);
+        }
+    }
+
+    private static int maxLeftSegment(Node root, int right, int height) {
+        if (root == null) {
+            return 0;
+        }
+        int path = (right & (1 << height - 1));
+        if (height == 1) {
+            int leftVal = (root.left != null) ? root.left.value : 0;
+            int rightVal = (root.right != null) ? root.right.value : 0;
+            return (path == 0) ? Math.max(leftVal, rightVal) : leftVal;
+        }
+        if (path == 0) {
+            int leftMax = (root.left != null) ? root.left.maxinsubtree : 0;
+            return Math.max(leftMax, maxLeftSegment(root.right, right, height - 1));
+        }
+        else {
+            return maxLeftSegment(root.left, right, height - 1);
+        }
+    }
+
+    private static int maxSegment(Node root, int left, int right, int height) {
+        int leftPath = (left >> (height - 1)) & 1;
+        int rightPath = (right >> (height - 1)) & 1;
+        if (height == 0) {
+            return -1;
+        }
+        else if (height == 1) {
+            int leftVal = (root.left != null) ? root.left.value : 0;
+            int rightVal = (root.left != null) ? root.right.value : 0;
+            if (leftPath == 0 && rightPath == 0) {
+                return leftVal;
+            }
+            if (leftPath == 1 && rightPath == 1) {
+                return rightVal;
+            }
+            return Math.max(leftVal, rightVal);
+        }
+        else if (leftPath == 0 && rightPath == 0) {
+            return maxSegment(root.left, left, right, height - 1);
+        }
+        else if (leftPath == 1 && rightPath == 1) {
+            return maxSegment(root.right, left, right, height - 1);
+        }
+        else {
+            int maxLeft = maxRightSegment(root.left, left, height - 1);
+            int maxRight = maxLeftSegment(root.right, right, height - 1);
+            return Math.max(maxLeft, maxRight);
         }
     }
 
@@ -290,6 +385,12 @@ public class main {
                         System.out.println(value);
                     }
                     break;
+                }
+                case "maxininterval": {
+                    int left = Integer.parseInt(str[1]);
+                    int right = Integer.parseInt(str[2]);
+                    int maxinsubtree = maxInInterval(array, left, right);
+                    System.out.println(maxinsubtree);
                 }
                 case "unset": {
                     array = pop();
