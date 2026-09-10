@@ -275,15 +275,42 @@ public class main {
         }
     }
 
+    /**
+     * maxInInterval finds the max value in the given interval
+     * 
+     * @param array the array to search through
+     * @param left the lower bound in the interval
+     * @param right the upper bound in the interval
+     * 
+     * @return the max value in the array in the given interval
+     */
     private static int maxInInterval(Array array, int left, int right) {
-        if((left < 0 || right < 0) || (left > right) || (array.height < (32-Integer.numberOfLeadingZeros(left))) || array.root == null) {
+        if ((left < 0 || right < 0) || (left > right) || array.height < (32-Integer.numberOfLeadingZeros(left))) {
             return 0;
         }
-        else {
-            return maxSegment(array.root, left, right, array.height);
+        if (array.root == null) {
+            return 0;
         }
+
+        int maxIndex = -1 >>> (32 - array.height);
+        int maxininterval = 0;
+
+        if (left <= maxIndex) {
+            int clampedRight = Math.min(right, maxIndex);
+            maxininterval = Math.max(maxininterval, maxSegment(array.root, left, clampedRight, array.height));
+        }
+
+        return maxininterval;
     }
 
+    /**
+     * maxRightSegment finds the biggest value that is to the right (inclusive) of @param left
+     * maxRightSegment is a recursive helper function for maxSegment
+     * 
+     * @param root the current root 
+     * @param left the lower bound of the interval
+     * @param height the height of the current root
+     */
     private static int maxRightSegment(Node root, int left, int height) {
         if (root == null) {
             return 0;
@@ -303,6 +330,14 @@ public class main {
         }
     }
 
+    /**
+     * maxLeftSegment finds the biggest value that is to the left (inclusive) of @param left
+     * maxLeftSegment is a recursive helper function for maxSegment
+     * 
+     * @param root the current root 
+     * @param right the upper bound of the interval
+     * @param height the height of the current root
+     */
     private static int maxLeftSegment(Node root, int right, int height) {
         if (root == null) {
             return 0;
@@ -322,6 +357,17 @@ public class main {
         }
     }
 
+    /**
+     * maxSegment finds the biggest value in a given interval
+     * maxSegment is a recursive helper function for maxInInterval
+     * 
+     * @param root the curren root
+     * @param left the lower bound
+     * @param right the upper bound
+     * @param height the height of the current root
+     * 
+     * @return the max value in the given interval
+     */
     private static int maxSegment(Node root, int left, int right, int height) {
         int leftPath = (left  >> (height - 1)) & 1;
         int rightPath = (right  >> (height - 1)) & 1;
