@@ -286,15 +286,15 @@ public class main {
      * @return the max value in the array in the given interval
      */
     private static int maxInInterval(Array array, int left, int right) {
-        if ((left < 0 || right < 0) || (left > right) || array.height < (32-Integer.numberOfLeadingZeros(left))) {
-            return 0;
+        if ((left < 0 || right < 0) || (left > right)) {
+            return -1;
         }
         if (array.root == null) {
-            return 0;
+            return -1;
         }
 
         int maxIndex = -1 >>> (32 - array.height);
-        int maxininterval = 0;
+        int maxininterval = -1;
 
         if (left <= maxIndex) {
             int clampedRight = Math.min(right, maxIndex);
@@ -332,7 +332,7 @@ public class main {
     }
 
     /**
-     * maxLeftSegment finds the biggest value that is to the left (inclusive) of @param left
+     * maxLeftSegment finds the biggest value that is to the left (inclusive) of @param right
      * maxLeftSegment is a recursive helper function for maxSegment
      * 
      * @param root the current root 
@@ -370,6 +370,9 @@ public class main {
      * @return the max value in the given interval
      */
     private static int maxSegment(Node root, int left, int right, int height) {
+        if (root == null) {
+            return 0;
+        }
         int leftPath = (left  >> (height - 1)) & 1;
         int rightPath = (right  >> (height - 1)) & 1;
         if (height == 0) {
@@ -424,6 +427,9 @@ public class main {
                     }
                     int index = Integer.parseInt(str[1]);
                     int value = Integer.parseInt(str[2]);
+                    if (index < 0 || value < 0) {
+                        break;
+                    }
                     push(array);
                     array = set(array, index, value);
                     break;
