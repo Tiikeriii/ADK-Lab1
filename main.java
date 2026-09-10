@@ -111,7 +111,7 @@ public class main {
     boolean diverged = false;
 
     while(level >= 1) {
-        if ((index & (1 << level - 1)) == 0) {
+        if (((index  >> (level - 1)) & 1) == 0) {
 
             if(height == level) {
                 newNode = new Node(null, null);
@@ -254,7 +254,7 @@ public class main {
             return 0;
         }
         // Given each level, do we go left (0) or right (1) (based on index)
-        int path = (index & (1 << level - 1));
+        int path = (index  >> (level - 1)) & 1;
         
         if(level == 0) {
             return node.value;
@@ -276,12 +276,7 @@ public class main {
     }
 
     private static int maxInInterval(Array array, int left, int right) {
-        if((left < 0 || right < 0) || (left > right)) {
-            System.out.println("Invalid interval");
-            return 0;
-        }
-        else if (array.height < (32-Integer.numberOfLeadingZeros(left))) {
-            System.out.println("Left side of interval is bigger than the max index in the array");
+        if((left < 0 || right < 0) || (left > right) || (array.height < (32-Integer.numberOfLeadingZeros(left))) || array.root == null) {
             return 0;
         }
         else {
@@ -293,7 +288,7 @@ public class main {
         if (root == null) {
             return 0;
         }
-        int path = (left & (1 << height - 1));
+        int path = (left  >> (height - 1)) & 1;
         if (height == 1) {
             int leftVal = (root.left != null) ? root.left.value : 0;
             int rightVal = (root.right != null) ? root.right.value : 0;
@@ -312,37 +307,39 @@ public class main {
         if (root == null) {
             return 0;
         }
-        int path = (right & (1 << height - 1));
+        int path = (right  >> (height - 1)) & 1;
         if (height == 1) {
             int leftVal = (root.left != null) ? root.left.value : 0;
             int rightVal = (root.right != null) ? root.right.value : 0;
-            return (path == 0) ? Math.max(leftVal, rightVal) : leftVal;
+            return (path == 0) ? leftVal : Math.max(leftVal, rightVal);
         }
         if (path == 0) {
-            int leftMax = (root.left != null) ? root.left.maxinsubtree : 0;
-            return Math.max(leftMax, maxLeftSegment(root.right, right, height - 1));
+            return maxLeftSegment(root.left, right, height - 1);
         }
         else {
-            return maxLeftSegment(root.left, right, height - 1);
+            int leftMax = (root.left != null) ? root.left.maxinsubtree : 0;
+            return Math.max(leftMax, maxLeftSegment(root.right, right, height - 1));
         }
     }
 
     private static int maxSegment(Node root, int left, int right, int height) {
-        int leftPath = (left >> (height - 1)) & 1;
-        int rightPath = (right >> (height - 1)) & 1;
+        int leftPath = (left  >> (height - 1)) & 1;
+        int rightPath = (right  >> (height - 1)) & 1;
         if (height == 0) {
             return -1;
         }
         else if (height == 1) {
             int leftVal = (root.left != null) ? root.left.value : 0;
-            int rightVal = (root.left != null) ? root.right.value : 0;
+            int rightVal = (root.right != null) ? root.right.value : 0;
             if (leftPath == 0 && rightPath == 0) {
                 return leftVal;
             }
-            if (leftPath == 1 && rightPath == 1) {
+            else if (leftPath == 1 && rightPath == 1) {
                 return rightVal;
             }
-            return Math.max(leftVal, rightVal);
+            else {
+                return Math.max(leftVal, rightVal);
+            }
         }
         else if (leftPath == 0 && rightPath == 0) {
             return maxSegment(root.left, left, right, height - 1);
@@ -369,6 +366,10 @@ public class main {
         
             switch (str[0]) {
                 case "set": {
+                    if (str.length < 3) {
+                        System.out.println("Command should be: set index value");
+                        break;
+                    }
                     int index = Integer.parseInt(str[1]);
                     int value = Integer.parseInt(str[2]);
                     push(array);
@@ -376,7 +377,10 @@ public class main {
                     break;
                 }
                 case "get": {
-                    if (array == null || array.root == null) {
+                    if (str.length < 2) {
+                        System.out.println("Command should be: get index");
+                    }
+                    else if (array == null || array.root == null) {
                         System.out.println("Array is empty");
                     }
                     else {
@@ -387,12 +391,21 @@ public class main {
                     break;
                 }
                 case "maxininterval": {
+                    if (str.length < 3) {
+                        System.out.println("Command should be: maxininterval left right");
+                        break;
+                    }
                     int left = Integer.parseInt(str[1]);
                     int right = Integer.parseInt(str[2]);
                     int maxinsubtree = maxInInterval(array, left, right);
                     System.out.println(maxinsubtree);
+                    break;
                 }
                 case "unset": {
+                    if (top == 0) {
+                        System.out.println("Array is empty!");
+                        break;
+                    }
                     array = pop();
                     break;
                     }
@@ -401,7 +414,7 @@ public class main {
                     break;
                     }
                 default: {
-                    System.out.println("Invalid command\n");
+                    System.out.println("Invalid command!\n");
                     break;
                 }
             }
