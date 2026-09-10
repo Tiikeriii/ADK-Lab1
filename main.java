@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 
@@ -407,7 +408,12 @@ public class main {
         boolean isRunning = true;
 
         while (isRunning) {
-            String input = scanner.nextLine();
+            String input; 
+            try {
+                input = scanner.nextLine();
+            } catch (NoSuchElementException e) {
+                break;
+            }
             String[] str = input.split("\\s+");
         
             switch (str[0]) {
@@ -425,9 +431,6 @@ public class main {
                 case "get": {
                     if (str.length < 2) {
                         System.out.println("Command should be: get index");
-                    }
-                    else if (array == null || array.root == null) {
-                        System.out.println("Array is empty");
                     }
                     else {
                         int index = Integer.parseInt(str[1]);
@@ -449,7 +452,6 @@ public class main {
                 }
                 case "unset": {
                     if (top == 0) {
-                        System.out.println("Array is empty!");
                         break;
                     }
                     array = pop();
